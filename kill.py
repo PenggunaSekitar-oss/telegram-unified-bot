@@ -197,23 +197,56 @@ class TelegramUnifiedBot:
         # Hitung waktu total berdasarkan panjang teks, tapi batasi maksimum
         delay = min(len(text) * typing_speed, max_delay)
         
-        # Kirim aksi typing
-        await context.bot.send_chat_action(
-            chat_id=update.effective_chat.id,
-            action="typing"
-        )
+        # Dapatkan chat_id dengan cara yang benar berdasarkan tipe update
+        chat_id = None
+        if hasattr(update, 'effective_chat') and update.effective_chat:
+            chat_id = update.effective_chat.id
+        elif hasattr(update, 'message') and update.message:
+            chat_id = update.message.chat_id
+        elif hasattr(update, 'callback_query') and update.callback_query:
+            chat_id = update.callback_query.message.chat_id
+        elif isinstance(update, int):
+            chat_id = update
         
-        # Tunggu sebentar untuk efek mengetik
-        await asyncio.sleep(delay)
+        if not chat_id:
+            logger.error("Tidak dapat menemukan chat_id dalam update untuk simulate_typing")
+            return
+        
+        try:
+            # Kirim aksi typing
+            await context.bot.send_chat_action(
+                chat_id=chat_id,
+                action="typing"
+            )
+            
+            # Tunggu sebentar untuk efek mengetik
+            await asyncio.sleep(delay)
+        except Exception as e:
+            logger.error(f"Error saat simulate_typing: {e}")
     
     async def send_loading_animation(self, update, context, text, duration=3, animation_set=None):
         """Mengirim animasi loading dengan teks yang berubah."""
         if animation_set is None:
             animation_set = random.choice(LOADING_ANIMATIONS)
         
+        # Dapatkan chat_id dengan cara yang benar berdasarkan tipe update
+        chat_id = None
+        if hasattr(update, 'effective_chat') and update.effective_chat:
+            chat_id = update.effective_chat.id
+        elif hasattr(update, 'message') and update.message:
+            chat_id = update.message.chat_id
+        elif hasattr(update, 'callback_query') and update.callback_query:
+            chat_id = update.callback_query.message.chat_id
+        elif isinstance(update, int):
+            chat_id = update
+        
+        if not chat_id:
+            logger.error("Tidak dapat menemukan chat_id dalam update")
+            return None
+        
         # Kirim pesan awal
         message = await context.bot.send_message(
-            chat_id=update.effective_chat.id,
+            chat_id=chat_id,
             text=f"{animation_set[0]} {text}"
         )
         
@@ -221,10 +254,14 @@ class TelegramUnifiedBot:
         start_time = time.time()
         idx = 0
         
-        while time.time() - start_time < duration:
-            idx = (idx + 1) % len(animation_set)
-            await message.edit_text(f"{animation_set[idx]} {text}")
-            await asyncio.sleep(0.2)
+        if message:  # Pastikan message tidak None sebelum mencoba edit
+            try:
+                while time.time() - start_time < duration:
+                    idx = (idx + 1) % len(animation_set)
+                    await message.edit_text(f"{animation_set[idx]} {text}")
+                    await asyncio.sleep(0.2)
+            except Exception as e:
+                logger.error(f"Error saat animasi loading: {e}")
         
         return message
     
