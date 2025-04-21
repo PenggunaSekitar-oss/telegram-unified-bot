@@ -965,10 +965,37 @@ class TelegramUnifiedBot:
 # Fungsi utama
 def main():
     """Fungsi utama untuk menjalankan bot."""
+    # Konfigurasi logging tambahan
+    logging.getLogger('httpx').setLevel(logging.WARNING)
+    
+    # Inisialisasi bot
     bot = TelegramUnifiedBot()
     
-    # Jalankan bot
-    bot.application.run_polling()
+    # Hapus webhook yang mungkin terdaftar sebelumnya
+    try:
+        import requests
+        token = TOKEN
+        requests.get(f'https://api.telegram.org/bot{token}/deleteWebhook')
+        logger.info("Webhook dihapus untuk memastikan polling berfungsi dengan baik")
+    except Exception as e:
+        logger.error(f"Error saat menghapus webhook: {e}")
+    
+    # Jalankan bot dengan konfigurasi polling yang lebih robust
+    logger.info("Memulai bot dengan polling...")
+    bot.application.run_polling(
+        poll_interval=1.0,  # Interval polling yang lebih cepat
+        timeout=30,         # Timeout yang lebih lama
+        drop_pending_updates=True,  # Hapus update yang tertunda
+        allowed_updates=["message", "callback_query", "inline_query"],  # Jenis update yang diizinkan
+        stop_signals=None   # Nonaktifkan sinyal stop untuk mencegah shutdown yang tidak diinginkan
+    )
+    logger.info("Bot berhenti berjalan")
 
 if __name__ == "__main__":
-    main()
+    try:
+        logger.info("Memulai aplikasi bot Telegram...")
+        main()
+    except Exception as e:
+        logger.error(f"Error fatal saat menjalankan bot: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
