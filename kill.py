@@ -335,7 +335,561 @@ class TelegramUnifiedBot:
             
             return SESSION_STRING
     
-    # Implementasi metode lainnya akan ditambahkan di sini
+    # Implementasi metode handler yang hilang
+    async def api_id(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani input API ID."""
+        user_id = update.effective_user.id
+        api_id = update.message.text.strip()
+        
+        # Validasi API ID
+        try:
+            api_id = int(api_id)
+            user_data_dict[user_id]["api_id"] = api_id
+            
+            await update.message.reply_text(
+                f"{EMOJI['check']} API ID diterima: `{api_id}`\n\n"
+                f"{EMOJI['key']} Sekarang masukkan API Hash Anda:"
+            )
+            
+            return API_HASH
+            
+        except ValueError:
+            await update.message.reply_text(
+                f"{EMOJI['warning']} API ID harus berupa angka. Silakan coba lagi:"
+            )
+            
+            return API_ID
+    
+    async def api_hash(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani input API Hash."""
+        user_id = update.effective_user.id
+        api_hash = update.message.text.strip()
+        
+        # Simpan API Hash
+        user_data_dict[user_id]["api_hash"] = api_hash
+        
+        await update.message.reply_text(
+            f"{EMOJI['check']} API Hash diterima.\n\n"
+            f"{EMOJI['phone']} Sekarang masukkan nomor telepon Anda (format: +628xxxxxxxxxx):"
+        )
+        
+        return PHONE
+    
+    async def phone(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani input nomor telepon."""
+        user_id = update.effective_user.id
+        phone = update.message.text.strip()
+        
+        # Simpan nomor telepon
+        user_data_dict[user_id]["phone"] = phone
+        
+        # Simulasi loading
+        loading_message = await self.send_loading_animation(
+            update, 
+            context, 
+            f"{EMOJI['terminal']} Menghubungi server Telegram...",
+            duration=3
+        )
+        
+        await loading_message.edit_text(
+            f"{EMOJI['shield']} *VERIFIKASI DIPERLUKAN* {EMOJI['shield']}\n\n"
+            f"{EMOJI['terminal']} Kode verifikasi telah dikirim ke {phone}.\n\n"
+            f"{EMOJI['key']} Silakan masukkan kode verifikasi:"
+        )
+        
+        return VERIFICATION_CODE
+    
+    async def verification_code(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani input kode verifikasi."""
+        user_id = update.effective_user.id
+        code = update.message.text.strip()
+        
+        # Simulasi loading
+        loading_message = await self.send_loading_animation(
+            update, 
+            context, 
+            f"{EMOJI['terminal']} Memverifikasi kode...",
+            duration=3
+        )
+        
+        # Simulasi pembuatan string sesi
+        await loading_message.edit_text(
+            f"{EMOJI['shield']} *GENERATING SESSION STRING* {EMOJI['shield']}\n\n"
+            f"{EMOJI['terminal']} Membuat string sesi baru...\n\n"
+            f"{EMOJI['hourglass']} Harap tunggu..."
+        )
+        
+        # Simulasi string sesi yang dihasilkan
+        await asyncio.sleep(2)
+        
+        # String sesi dummy untuk simulasi
+        session_string = "1BVtsOHYBu0zqcN7zG1emc2dNLZKCzY_qwertyuiopasdfghjklzxcvbnm1234567890"
+        
+        await update.message.reply_text(
+            f"{EMOJI['check']} *SESSION STRING GENERATED* {EMOJI['check']}\n\n"
+            f"{EMOJI['terminal']} String sesi Anda:\n\n"
+            f"`{session_string}`\n\n"
+            f"{EMOJI['warning']} SIMPAN STRING INI DENGAN AMAN! {EMOJI['warning']}\n"
+            f"String ini memberikan akses ke akun Telegram Anda.\n\n"
+            f"Ketik /start untuk kembali ke menu utama."
+        )
+        
+        return ConversationHandler.END
+    
+    async def password(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani input password 2FA jika diperlukan."""
+        user_id = update.effective_user.id
+        password = update.message.text.strip()
+        
+        # Simulasi loading
+        loading_message = await self.send_loading_animation(
+            update, 
+            context, 
+            f"{EMOJI['terminal']} Memverifikasi password...",
+            duration=3
+        )
+        
+        # Simulasi pembuatan string sesi
+        await loading_message.edit_text(
+            f"{EMOJI['shield']} *GENERATING SESSION STRING* {EMOJI['shield']}\n\n"
+            f"{EMOJI['terminal']} Membuat string sesi baru...\n\n"
+            f"{EMOJI['hourglass']} Harap tunggu..."
+        )
+        
+        # Simulasi string sesi yang dihasilkan
+        await asyncio.sleep(2)
+        
+        # String sesi dummy untuk simulasi
+        session_string = "1BVtsOHYBu0zqcN7zG1emc2dNLZKCzY_qwertyuiopasdfghjklzxcvbnm1234567890"
+        
+        await update.message.reply_text(
+            f"{EMOJI['check']} *SESSION STRING GENERATED* {EMOJI['check']}\n\n"
+            f"{EMOJI['terminal']} String sesi Anda:\n\n"
+            f"`{session_string}`\n\n"
+            f"{EMOJI['warning']} SIMPAN STRING INI DENGAN AMAN! {EMOJI['warning']}\n"
+            f"String ini memberikan akses ke akun Telegram Anda.\n\n"
+            f"Ketik /start untuk kembali ke menu utama."
+        )
+        
+        return ConversationHandler.END
+    
+    async def session_string(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani input string sesi."""
+        user_id = update.effective_user.id
+        session_string = update.message.text.strip()
+        
+        # Simpan string sesi
+        user_data_dict[user_id]["session_string"] = session_string
+        
+        # Simulasi loading
+        loading_message = await self.send_loading_animation(
+            update, 
+            context, 
+            f"{EMOJI['terminal']} Memverifikasi string sesi...",
+            duration=3
+        )
+        
+        # Tampilkan menu operasi
+        keyboard = [
+            [InlineKeyboardButton(f"{EMOJI['trash']} Hapus Chat/Channel", callback_data="delete")],
+            [InlineKeyboardButton(f"{EMOJI['outbox']} Keluar dari Grup/Channel", callback_data="leave")],
+            [InlineKeyboardButton(f"{EMOJI['cross']} Blokir Pengguna", callback_data="block")]
+        ]
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await loading_message.edit_text(
+            f"{EMOJI['check']} *KONEKSI BERHASIL* {EMOJI['check']}\n\n"
+            f"{EMOJI['terminal']} String sesi terverifikasi.\n\n"
+            f"{EMOJI['gear']} Pilih operasi yang ingin dilakukan:",
+            reply_markup=reply_markup
+        )
+        
+        return MENU
+    
+    async def menu_choice(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani pilihan menu operasi."""
+        query = update.callback_query
+        user_id = query.from_user.id
+        choice = query.data
+        
+        await query.answer()
+        
+        # Simpan jenis aksi
+        user_data_dict[user_id]["action_type"] = choice
+        
+        # Simulasi loading
+        loading_message = await self.send_loading_animation(
+            update.effective_chat, 
+            context, 
+            f"{EMOJI['terminal']} Memuat daftar dialog...",
+            duration=3
+        )
+        
+        # Tampilkan pilihan jenis dialog
+        if choice == "delete":
+            title = f"{EMOJI['trash']} HAPUS CHAT/CHANNEL"
+            description = "Pilih jenis item yang ingin dihapus:"
+        elif choice == "leave":
+            title = f"{EMOJI['outbox']} KELUAR DARI GRUP/CHANNEL"
+            description = "Pilih jenis grup yang ingin ditinggalkan:"
+        elif choice == "block":
+            title = f"{EMOJI['cross']} BLOKIR PENGGUNA"
+            description = "Pilih jenis pengguna yang ingin diblokir:"
+        
+        keyboard = [
+            [InlineKeyboardButton(f"{EMOJI['terminal']} Semua", callback_data="all")],
+            [InlineKeyboardButton(f"{EMOJI['hacker']} Pengguna", callback_data="users")],
+            [InlineKeyboardButton(f"{EMOJI['database']} Grup", callback_data="groups")],
+            [InlineKeyboardButton(f"{EMOJI['cloud']} Channel", callback_data="channels")],
+            [InlineKeyboardButton(f"{EMOJI['wrench']} Kembali", callback_data="back")]
+        ]
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await loading_message.edit_text(
+            f"{EMOJI['shield']} *{title}* {EMOJI['shield']}\n\n"
+            f"{EMOJI['terminal']} {description}",
+            reply_markup=reply_markup
+        )
+        
+        return ACTION
+    
+    async def action_choice(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani pilihan jenis dialog."""
+        query = update.callback_query
+        user_id = query.from_user.id
+        choice = query.data
+        
+        await query.answer()
+        
+        if choice == "back":
+            # Kembali ke menu operasi
+            keyboard = [
+                [InlineKeyboardButton(f"{EMOJI['trash']} Hapus Chat/Channel", callback_data="delete")],
+                [InlineKeyboardButton(f"{EMOJI['outbox']} Keluar dari Grup/Channel", callback_data="leave")],
+                [InlineKeyboardButton(f"{EMOJI['cross']} Blokir Pengguna", callback_data="block")]
+            ]
+            
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(
+                f"{EMOJI['check']} *KONEKSI BERHASIL* {EMOJI['check']}\n\n"
+                f"{EMOJI['terminal']} String sesi terverifikasi.\n\n"
+                f"{EMOJI['gear']} Pilih operasi yang ingin dilakukan:",
+                reply_markup=reply_markup
+            )
+            
+            return MENU
+        
+        # Simpan jenis dialog
+        user_data_dict[user_id]["dialog_type"] = choice
+        
+        # Simulasi loading
+        loading_message = await self.send_loading_animation(
+            update.effective_chat, 
+            context, 
+            f"{EMOJI['terminal']} Memuat daftar item...",
+            duration=3
+        )
+        
+        # Simulasi daftar dialog
+        action_type = user_data_dict[user_id]["action_type"]
+        
+        if action_type == "delete":
+            title = f"{EMOJI['trash']} HAPUS CHAT/CHANNEL"
+        elif action_type == "leave":
+            title = f"{EMOJI['outbox']} KELUAR DARI GRUP/CHANNEL"
+        elif action_type == "block":
+            title = f"{EMOJI['cross']} BLOKIR PENGGUNA"
+        
+        # Simulasi daftar item
+        items = [
+            {"id": 1, "name": "Item 1", "selected": False},
+            {"id": 2, "name": "Item 2", "selected": False},
+            {"id": 3, "name": "Item 3", "selected": False},
+            {"id": 4, "name": "Item 4", "selected": False},
+            {"id": 5, "name": "Item 5", "selected": False}
+        ]
+        
+        # Simpan daftar item
+        user_data_dict[user_id]["filtered_dialogs"] = items
+        user_data_dict[user_id]["current_page"] = 0
+        
+        # Buat keyboard dengan checkbox
+        keyboard = []
+        
+        for item in items:
+            checkbox = f"{EMOJI['check']}" if item["selected"] else "☐"
+            keyboard.append([InlineKeyboardButton(f"{checkbox} {item['name']}", callback_data=f"toggle_{item['id']}")])
+        
+        # Tambahkan tombol navigasi dan aksi
+        nav_buttons = []
+        
+        if len(items) > user_data_dict[user_id]["items_per_page"]:
+            nav_buttons.append(InlineKeyboardButton("⬅️ Prev", callback_data="prev"))
+            nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data="next"))
+        
+        if nav_buttons:
+            keyboard.append(nav_buttons)
+        
+        keyboard.append([InlineKeyboardButton(f"{EMOJI['check']} Pilih Semua", callback_data="select_all")])
+        keyboard.append([InlineKeyboardButton(f"{EMOJI['cross']} Batalkan Semua", callback_data="deselect_all")])
+        keyboard.append([InlineKeyboardButton(f"{EMOJI['rocket']} Lanjutkan", callback_data="continue")])
+        keyboard.append([InlineKeyboardButton(f"{EMOJI['wrench']} Kembali", callback_data="back_to_action")])
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await loading_message.edit_text(
+            f"{EMOJI['shield']} *{title}* {EMOJI['shield']}\n\n"
+            f"{EMOJI['terminal']} Pilih item dengan mengklik checkbox:\n"
+            f"{EMOJI['chart']} Halaman: 1/{max(1, len(items) // user_data_dict[user_id]['items_per_page'] + 1)}\n"
+            f"{EMOJI['magnifier']} Total item: {len(items)}",
+            reply_markup=reply_markup
+        )
+        
+        return SELECT_ITEMS
+    
+    async def select_items(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani pemilihan item dengan checkbox."""
+        query = update.callback_query
+        user_id = query.from_user.id
+        choice = query.data
+        
+        await query.answer()
+        
+        if choice == "back_to_action":
+            # Kembali ke pilihan jenis dialog
+            action_type = user_data_dict[user_id]["action_type"]
+            
+            if action_type == "delete":
+                title = f"{EMOJI['trash']} HAPUS CHAT/CHANNEL"
+                description = "Pilih jenis item yang ingin dihapus:"
+            elif action_type == "leave":
+                title = f"{EMOJI['outbox']} KELUAR DARI GRUP/CHANNEL"
+                description = "Pilih jenis grup yang ingin ditinggalkan:"
+            elif action_type == "block":
+                title = f"{EMOJI['cross']} BLOKIR PENGGUNA"
+                description = "Pilih jenis pengguna yang ingin diblokir:"
+            
+            keyboard = [
+                [InlineKeyboardButton(f"{EMOJI['terminal']} Semua", callback_data="all")],
+                [InlineKeyboardButton(f"{EMOJI['hacker']} Pengguna", callback_data="users")],
+                [InlineKeyboardButton(f"{EMOJI['database']} Grup", callback_data="groups")],
+                [InlineKeyboardButton(f"{EMOJI['cloud']} Channel", callback_data="channels")],
+                [InlineKeyboardButton(f"{EMOJI['wrench']} Kembali", callback_data="back")]
+            ]
+            
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(
+                f"{EMOJI['shield']} *{title}* {EMOJI['shield']}\n\n"
+                f"{EMOJI['terminal']} {description}",
+                reply_markup=reply_markup
+            )
+            
+            return ACTION
+        
+        # Dapatkan daftar item
+        items = user_data_dict[user_id]["filtered_dialogs"]
+        current_page = user_data_dict[user_id]["current_page"]
+        items_per_page = user_data_dict[user_id]["items_per_page"]
+        
+        # Proses pilihan
+        if choice.startswith("toggle_"):
+            # Toggle item
+            item_id = int(choice.split("_")[1])
+            
+            for item in items:
+                if item["id"] == item_id:
+                    item["selected"] = not item["selected"]
+                    break
+        
+        elif choice == "select_all":
+            # Pilih semua item
+            for item in items:
+                item["selected"] = True
+        
+        elif choice == "deselect_all":
+            # Batalkan semua pilihan
+            for item in items:
+                item["selected"] = False
+        
+        elif choice == "prev":
+            # Halaman sebelumnya
+            if current_page > 0:
+                current_page -= 1
+                user_data_dict[user_id]["current_page"] = current_page
+        
+        elif choice == "next":
+            # Halaman berikutnya
+            if (current_page + 1) * items_per_page < len(items):
+                current_page += 1
+                user_data_dict[user_id]["current_page"] = current_page
+        
+        elif choice == "continue":
+            # Lanjutkan ke konfirmasi
+            selected_items = [item for item in items if item["selected"]]
+            
+            if not selected_items:
+                await query.answer("Pilih minimal satu item terlebih dahulu!", show_alert=True)
+                return SELECT_ITEMS
+            
+            # Simpan item yang dipilih
+            user_data_dict[user_id]["selected_dialogs"] = selected_items
+            
+            # Tampilkan konfirmasi
+            action_type = user_data_dict[user_id]["action_type"]
+            
+            if action_type == "delete":
+                title = f"{EMOJI['trash']} HAPUS CHAT/CHANNEL"
+                action = "Menghapus chat/channel"
+                impact = "Semua pesan akan dihapus dari perangkat Anda"
+            elif action_type == "leave":
+                title = f"{EMOJI['outbox']} KELUAR DARI GRUP/CHANNEL"
+                action = "Keluar dari grup/channel"
+                impact = "Anda akan keluar dari grup/channel yang dipilih"
+            elif action_type == "block":
+                title = f"{EMOJI['cross']} BLOKIR PENGGUNA"
+                action = "Memblokir pengguna"
+                impact = "Pengguna yang diblokir tidak dapat menghubungi Anda"
+            
+            # Pilih pesan konfirmasi acak
+            confirmation_message = random.choice(HACKER_CONFIRMATION_MESSAGES)
+            formatted_message = self.format_hacker_message(
+                confirmation_message,
+                action=action,
+                count=len(selected_items),
+                impact=impact
+            )
+            
+            keyboard = [
+                [InlineKeyboardButton(f"{EMOJI['check']} Konfirmasi", callback_data="confirm")],
+                [InlineKeyboardButton(f"{EMOJI['cross']} Batalkan", callback_data="cancel")]
+            ]
+            
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            
+            await query.edit_message_text(
+                formatted_message,
+                reply_markup=reply_markup
+            )
+            
+            return CONFIRM
+        
+        # Buat keyboard dengan checkbox yang diperbarui
+        start_idx = current_page * items_per_page
+        end_idx = min(start_idx + items_per_page, len(items))
+        page_items = items[start_idx:end_idx]
+        
+        keyboard = []
+        
+        for item in page_items:
+            checkbox = f"{EMOJI['check']}" if item["selected"] else "☐"
+            keyboard.append([InlineKeyboardButton(f"{checkbox} {item['name']}", callback_data=f"toggle_{item['id']}")])
+        
+        # Tambahkan tombol navigasi dan aksi
+        nav_buttons = []
+        
+        if len(items) > items_per_page:
+            if current_page > 0:
+                nav_buttons.append(InlineKeyboardButton("⬅️ Prev", callback_data="prev"))
+            
+            if (current_page + 1) * items_per_page < len(items):
+                nav_buttons.append(InlineKeyboardButton("Next ➡️", callback_data="next"))
+        
+        if nav_buttons:
+            keyboard.append(nav_buttons)
+        
+        keyboard.append([InlineKeyboardButton(f"{EMOJI['check']} Pilih Semua", callback_data="select_all")])
+        keyboard.append([InlineKeyboardButton(f"{EMOJI['cross']} Batalkan Semua", callback_data="deselect_all")])
+        keyboard.append([InlineKeyboardButton(f"{EMOJI['rocket']} Lanjutkan", callback_data="continue")])
+        keyboard.append([InlineKeyboardButton(f"{EMOJI['wrench']} Kembali", callback_data="back_to_action")])
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        # Dapatkan judul berdasarkan jenis aksi
+        action_type = user_data_dict[user_id]["action_type"]
+        
+        if action_type == "delete":
+            title = f"{EMOJI['trash']} HAPUS CHAT/CHANNEL"
+        elif action_type == "leave":
+            title = f"{EMOJI['outbox']} KELUAR DARI GRUP/CHANNEL"
+        elif action_type == "block":
+            title = f"{EMOJI['cross']} BLOKIR PENGGUNA"
+        
+        await query.edit_message_text(
+            f"{EMOJI['shield']} *{title}* {EMOJI['shield']}\n\n"
+            f"{EMOJI['terminal']} Pilih item dengan mengklik checkbox:\n"
+            f"{EMOJI['chart']} Halaman: {current_page + 1}/{max(1, (len(items) - 1) // items_per_page + 1)}\n"
+            f"{EMOJI['magnifier']} Total item: {len(items)}",
+            reply_markup=reply_markup
+        )
+        
+        return SELECT_ITEMS
+    
+    async def confirm_action(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Menangani konfirmasi aksi."""
+        query = update.callback_query
+        user_id = query.from_user.id
+        choice = query.data
+        
+        await query.answer()
+        
+        if choice == "cancel":
+            # Kembali ke pemilihan item
+            return await self.select_items(update, context)
+        
+        # Simulasi eksekusi aksi
+        action_type = user_data_dict[user_id]["action_type"]
+        selected_items = user_data_dict[user_id]["selected_dialogs"]
+        
+        # Simulasi loading
+        loading_message = await self.send_loading_animation(
+            update.effective_chat, 
+            context, 
+            f"{EMOJI['terminal']} Menjalankan operasi...",
+            duration=5
+        )
+        
+        # Simulasi hasil
+        total = len(selected_items)
+        success = random.randint(total - 2, total)
+        failed = total - success
+        rate_limited = random.randint(0, min(2, failed))
+        failed -= rate_limited
+        
+        if success == total:
+            success_rate = 100
+        else:
+            success_rate = int((success / total) * 100)
+        
+        # Pilih pesan hasil acak
+        result_message = random.choice(HACKER_RESULT_MESSAGES)
+        formatted_message = self.format_hacker_message(
+            result_message,
+            total=total,
+            success=success,
+            failed=failed,
+            rate_limited=rate_limited,
+            success_rate=success_rate
+        )
+        
+        keyboard = [
+            [InlineKeyboardButton(f"{EMOJI['terminal']} Kembali ke Menu", callback_data="back_to_menu")]
+        ]
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await loading_message.edit_text(
+            formatted_message,
+            reply_markup=reply_markup
+        )
+        
+        # Reset data pengguna
+        user_data_dict[user_id]["selected_dialogs"] = []
+        
+        return ConversationHandler.END
     
     async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         """Membatalkan operasi dan kembali ke menu utama."""
