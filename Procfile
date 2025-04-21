@@ -1,1 +1,1 @@
-worker: python kill.py
+worker: python3 kill.py
